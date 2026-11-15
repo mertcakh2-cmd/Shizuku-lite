@@ -8,14 +8,14 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-/** Creates a user-requested, branded service-status notification. */
+/** Independent notification helper for the standalone app dashboard. */
 public final class NotificationDecorator {
-    private static final String CHANNEL_ID = "service_status";
+    private static final String CHANNEL_ID = "lite_dashboard_status";
     private static final int NOTIFICATION_ID = 100;
 
     private NotificationDecorator() { }
 
-    public static boolean postStatus(Activity activity, boolean connected, boolean accessGranted) {
+    public static boolean postStatus(Activity activity, boolean ready, boolean enabled) {
         if (Build.VERSION.SDK_INT >= 33
                 && activity.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -28,27 +28,32 @@ public final class NotificationDecorator {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, "Shizuku Lite status", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("Status notifications requested from Shizuku Lite.");
+                    CHANNEL_ID,
+                    "Lite Dashboard status",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            channel.setDescription("Status updates from the standalone Lite Dashboard app.");
             manager.createNotificationChannel(channel);
         }
 
-        String title = connected ? "Shizuku is connected" : "Shizuku is not connected";
-        String message = connected
-                ? (accessGranted ? "This app has Shizuku permission." : "This app does not have Shizuku permission yet.")
-                : "Start the Shizuku service, then return to Shizuku Lite.";
+        String title = ready ? "App ready" : "App not ready";
+        String message = ready
+                ? (enabled ? "Everything is running smoothly." : "The app is ready but notification access is not enabled.")
+                : "Open the app to check your current status.";
 
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 ? new Notification.Builder(activity, CHANNEL_ID)
                 : new Notification.Builder(activity);
+
         Notification notification = builder
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(R.drawable.ic_shizuku_lite)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setStyle(new Notification.BigTextStyle().bigText(message))
                 .setCategory(Notification.CATEGORY_STATUS)
                 .setAutoCancel(true)
                 .build();
+
         manager.notify(NOTIFICATION_ID, notification);
         return true;
     }

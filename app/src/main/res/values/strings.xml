@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Shizuku Lite</string>
+    <string name="status_waiting">Waiting for binder</string>
+    <string name="status_permission_missing">Permission missing</string>
+    <string name="status_root_ready">Root access ready</string>
+    <string name="status_adb_ready">ADB shell ready</string>
+    <string name="status_connected">Shizuku connected</string>
+</resources>

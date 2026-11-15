@@ -1,44 +1,45 @@
-name: Android APK Builder
+name: Android APK Compiler
 
 on:
+workflow_dispatch:
 push:
 branches:
 - main
-workflow_dispatch:
 
 permissions:
 contents: read
 
 jobs:
-build:
-name: Compile Android APK
+android:
 runs-on: ubuntu-latest
 
 steps:
-  - name: Checkout
+  - name: Download Source
     uses: actions/checkout@v4
 
-  - name: Setup Java
+  - name: Install JDK
     uses: actions/setup-java@v4
     with:
       distribution: temurin
-      java-version: '21'
-
-  - name: Setup Gradle
-    uses: gradle/actions/setup-gradle@v4
+      java-version: '17'
 
   - name: Install Gradle
-    run: |
-      sudo apt-get update
-      sudo apt-get install -y gradle
+    uses: gradle/actions/setup-gradle@v4
+    with:
+      gradle-version: '8.14.3'
 
-  - name: Build APK
-    run: gradle assembleDebug
+  - name: Check Project
+    run: |
+      ls -la
+      ls -la app
+
+  - name: Compile APK
+    run: gradle assembleDebug --no-daemon
 
   - name: Upload APK
     uses: actions/upload-artifact@v4
     with:
-      name: Android-Debug-APK
+      name: Compiled-Android-APK
       path: app/build/outputs/apk/debug/*.apk
       if-no-files-found: error
       retention-days: 14
